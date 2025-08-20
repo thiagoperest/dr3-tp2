@@ -2,6 +2,9 @@ package br.edu.infnet.dr3tp2.model;
 
 import java.math.BigDecimal;
 
+/**
+ * Representa uma consulta médica para cálculo de reembolso
+ */
 public class Consulta {
 
     private BigDecimal valor;
