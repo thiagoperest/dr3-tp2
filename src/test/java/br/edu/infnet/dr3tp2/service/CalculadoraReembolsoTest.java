@@ -1,0 +1,47 @@
+package br.edu.infnet.dr3tp2.service;
+
+import br.edu.infnet.dr3tp2.model.Consulta;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
+
+import java.math.BigDecimal;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Classe de testes para CalculadoraReembolso
+ *
+ * CICLO TDD:
+ * 1. RED - Escrever teste que falha
+ * 2. GREEN - Implementar código mínimo para passar
+ * 3. REFACTOR - Melhorar código mantendo testes passando
+ */
+class CalculadoraReembolsoTest {
+
+    private CalculadoraReembolso calculadora;
+
+    @BeforeEach
+    void setUp() {
+        // Configuração inicial para cada teste, instanciando a classe a ser testada
+        calculadora = new CalculadoraReembolso();
+    }
+
+    @Test
+    @DisplayName("Deve calcular reembolso básico: R$ 200 com 70% = R$ 140")
+    void deveCalcularReembolsoBasico() {
+        // Arrange - Dados de entrada isolados
+        Consulta consulta = new Consulta(
+                new BigDecimal("200.00"),
+                new BigDecimal("0.70")  // 70% de cobertura do reembolso
+        );
+        BigDecimal reembolsoEsperado = new BigDecimal("140.00");
+
+        // Act - Executar ação a ser testada
+        BigDecimal reembolsoCalculado = calculadora.calcular(consulta);
+
+        // Assert - Verificar resultado
+        assertEquals(0, reembolsoEsperado.compareTo(reembolsoCalculado),
+                "Reembolso deve ser 70% de R$ 200,00 = R$ 140,00");
+    }
+}
