@@ -75,4 +75,14 @@ class ReembolsoControllerTest {
                 .andExpect(jsonPath("$.erro").value("Percentual inválido"))
                 .andExpect(jsonPath("$.status").value("erro"));
     }
+
+    @Test
+    @DisplayName("Deve retornar status da API")
+    void deveRetornarStatusDaAPI() throws Exception {
+        // Act & Assert
+        mockMvc.perform(get("/api/reembolso/status"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("API funcionando"))
+                .andExpect(jsonPath("$.versao").value("1.0.0"));
+    }
 }
