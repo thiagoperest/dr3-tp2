@@ -89,4 +89,19 @@ class ReembolsoServiceTest {
                 () -> reembolsoService.calcularReembolso(null),
                 "Deve lançar exceção para consulta nula");
     }
+
+    @Test
+    @DisplayName("Deve lançar exceção para percentual de cobertura inválido")
+    void deveLancarExcecaoParaPercentualInvalido() {
+        // Arrange - Percentual maior que 100%
+        Consulta consulta = new Consulta(
+                new BigDecimal("200.00"),
+                new BigDecimal("1.50")  // 150% - inválido, máximo de 100%
+        );
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class,
+                () -> reembolsoService.calcularReembolso(consulta),
+                "Deve lançar exceção para percentual maior que 100%");
+    }
 }
