@@ -44,4 +44,22 @@ class CalculadoraReembolsoTest {
         assertEquals(0, reembolsoEsperado.compareTo(reembolsoCalculado),
                 "Reembolso deve ser 70% de R$ 200,00 = R$ 140,00");
     }
+
+    @Test
+    @DisplayName("Deve calcular reembolso com valor zero")
+    void deveCalcularReembolsoComValorZero() {
+        // Arrange
+        Consulta consulta = new Consulta(
+                BigDecimal.ZERO,
+                new BigDecimal("0.80")
+        );
+        BigDecimal reembolsoEsperado = BigDecimal.ZERO;
+
+        // Act
+        BigDecimal reembolsoCalculado = calculadora.calcular(consulta);
+
+        // Assert
+        assertEquals(0, reembolsoEsperado.compareTo(reembolsoCalculado),
+                "Reembolso de consulta gratuita deve ser zero");
+    }
 }
