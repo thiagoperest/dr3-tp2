@@ -80,4 +80,13 @@ class CalculadoraReembolsoTest {
         assertEquals(0, reembolsoEsperado.compareTo(reembolsoCalculado),
                 "Reembolso com 100% de cobertura deve ser igual ao valor da consulta");
     }
+
+    @Test
+    @DisplayName("Deve lançar exceção para consulta nula")
+    void deveLancarExcecaoParaConsultaNula() {
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class,
+                () -> calculadora.calcular(null),
+                "Deve lançar exceção para consulta nula");
+    }
 }
