@@ -1,6 +1,7 @@
 package br.edu.infnet.dr3tp2.service;
 
 import br.edu.infnet.dr3tp2.model.Consulta;
+import br.edu.infnet.dr3tp2.model.Paciente;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -20,11 +21,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class CalculadoraReembolsoTest {
 
     private CalculadoraReembolso calculadora;
+    private Paciente pacienteDummy;
 
     @BeforeEach
     void setUp() {
         // Configuração inicial para cada teste, instanciando a classe a ser testada
         calculadora = new CalculadoraReembolso();
+        pacienteDummy = new Paciente("João Silva", "123.456.789-00");
     }
 
     @Test
@@ -38,7 +41,7 @@ class CalculadoraReembolsoTest {
         BigDecimal reembolsoEsperado = new BigDecimal("140.00");
 
         // Act - Executar ação a ser testada
-        BigDecimal reembolsoCalculado = calculadora.calcular(consulta);
+        BigDecimal reembolsoCalculado = calculadora.calcular(consulta, pacienteDummy);
 
         // Assert - Verificar resultado
         assertEquals(0, reembolsoEsperado.compareTo(reembolsoCalculado),
@@ -56,7 +59,7 @@ class CalculadoraReembolsoTest {
         BigDecimal reembolsoEsperado = BigDecimal.ZERO;
 
         // Act
-        BigDecimal reembolsoCalculado = calculadora.calcular(consulta);
+        BigDecimal reembolsoCalculado = calculadora.calcular(consulta, pacienteDummy);
 
         // Assert
         assertEquals(0, reembolsoEsperado.compareTo(reembolsoCalculado),
@@ -74,7 +77,7 @@ class CalculadoraReembolsoTest {
         BigDecimal reembolsoEsperado = new BigDecimal("150.00");
 
         // Act
-        BigDecimal reembolsoCalculado = calculadora.calcular(consulta);
+        BigDecimal reembolsoCalculado = calculadora.calcular(consulta, pacienteDummy);
 
         // Assert
         assertEquals(0, reembolsoEsperado.compareTo(reembolsoCalculado),
@@ -86,7 +89,7 @@ class CalculadoraReembolsoTest {
     void deveLancarExcecaoParaConsultaNula() {
         // Act & Assert
         assertThrows(IllegalArgumentException.class,
-                () -> calculadora.calcular(null),
+                () -> calculadora.calcular(null, pacienteDummy),
                 "Deve lançar exceção para consulta nula");
     }
 
@@ -101,7 +104,7 @@ class CalculadoraReembolsoTest {
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class,
-                () -> calculadora.calcular(consulta),
+                () -> calculadora.calcular(consulta, pacienteDummy),
                 "Deve lançar exceção para percentual maior que 100%");
     }
 }

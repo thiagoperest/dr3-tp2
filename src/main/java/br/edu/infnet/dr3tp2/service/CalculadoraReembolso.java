@@ -1,6 +1,7 @@
 package br.edu.infnet.dr3tp2.service;
 
 import br.edu.infnet.dr3tp2.model.Consulta;
+import br.edu.infnet.dr3tp2.model.Paciente;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -16,10 +17,11 @@ public class CalculadoraReembolso {
      * Calcula o valor de reembolso de uma consulta médica
      *
      * @param consulta Consulta com valor e percentual de cobertura
+     * @param paciente Paciente (dummy - não utilizado no cálculo neste momento - EX4)
      * @return Valor do reembolso calculado
      * @throws IllegalArgumentException para dados inválidos
      */
-    public BigDecimal calcular(Consulta consulta) {
+    public BigDecimal calcular(Consulta consulta, Paciente paciente) {
         // Validação obrigatória - consulta não pode ser nula
         if (consulta == null) {
             throw new IllegalArgumentException("Consulta não pode ser nula");

@@ -1,6 +1,7 @@
 package br.edu.infnet.dr3tp2.service;
 
 import br.edu.infnet.dr3tp2.model.Consulta;
+import br.edu.infnet.dr3tp2.model.Paciente;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,7 @@ public class ReembolsoService {
      * @throws IllegalArgumentException para dados inválidos
      */
     public BigDecimal calcularReembolso(Consulta consulta) {
-        return calculadoraReembolso.calcular(consulta);
+        Paciente pacienteDummy = new Paciente("Dummy", "000.000.000-00");
+        return calculadoraReembolso.calcular(consulta, pacienteDummy);
     }
 }
