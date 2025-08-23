@@ -57,4 +57,22 @@ class ReembolsoControllerTest {
                 .andExpect(jsonPath("$.valorReembolso").value(140.00))
                 .andExpect(jsonPath("$.status").value("sucesso"));
     }
+
+    @Test
+    @DisplayName("Deve retornar erro para dados inválidos")
+    void deveRetornarErroParaDadosInvalidos() throws Exception {
+        // Arrange - Mock configurado para lançar exceção
+        when(reembolsoService.calcularReembolso(any(Consulta.class)))
+                .thenThrow(new IllegalArgumentException("Percentual inválido"));
+
+        Consulta consultaInvalida = new Consulta(new BigDecimal("200.00"), new BigDecimal("1.50"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/reembolso/calcular")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(consultaInvalida)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erro").value("Percentual inválido"))
+                .andExpect(jsonPath("$.status").value("erro"));
+    }
 }
