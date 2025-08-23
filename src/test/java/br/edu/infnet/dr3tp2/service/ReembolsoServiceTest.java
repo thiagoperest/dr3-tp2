@@ -62,4 +62,22 @@ class ReembolsoServiceTest {
         assertEquals(0, reembolsoEsperado.compareTo(reembolsoCalculado),
                 "Reembolso de consulta gratuita deve ser zero");
     }
+
+    @Test
+    @DisplayName("Deve calcular reembolso com cobertura 100%")
+    void deveCalcularReembolsoComCoberturaTotal() {
+        // Arrange
+        Consulta consulta = new Consulta(
+                new BigDecimal("150.00"),
+                new BigDecimal("1.00")  // 100% de cobertura - reembolso total do valor da consulta
+        );
+        BigDecimal reembolsoEsperado = new BigDecimal("150.00");
+
+        // Act
+        BigDecimal reembolsoCalculado = reembolsoService.calcularReembolso(consulta);
+
+        // Assert
+        assertEquals(0, reembolsoEsperado.compareTo(reembolsoCalculado),
+                "Reembolso com 100% de cobertura deve ser igual ao valor da consulta");
+    }
 }
