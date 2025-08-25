@@ -21,6 +21,9 @@ public class ReembolsoService {
     @Autowired
     private HistoricoConsultas historicoConsultas;
 
+    @Autowired(required = false)
+    Auditoria auditoria;
+
     /**
      * Calcula o valor de reembolso de uma consulta médica
      *
@@ -30,6 +33,12 @@ public class ReembolsoService {
      */
     public BigDecimal calcularReembolso(Consulta consulta) {
         Paciente pacienteDummy = new Paciente("Dummy", "000.000.000-00");
+
+        // EX7 - Registra auditoria
+        if (auditoria != null) {
+            auditoria.registrarConsulta(consulta);
+        }
+
         return calculadoraReembolso.calcular(consulta, pacienteDummy);
     }
 
@@ -43,6 +52,12 @@ public class ReembolsoService {
      */
     public BigDecimal calcularReembolsoComPlano(Consulta consulta, PlanoSaude planoSaude) {
         Paciente pacienteDummy = new Paciente("Dummy", "000.000.000-00");
+
+        // EX7 - Registra auditoria
+        if (auditoria != null) {
+            auditoria.registrarConsulta(consulta);
+        }
+
         return calculadoraReembolso.calcularComPlano(consulta, pacienteDummy, planoSaude);
     }
 
