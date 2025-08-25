@@ -37,6 +37,13 @@ class CalculadoraReembolsoTest {
         reembolsoService = new ReembolsoService();
     }
 
+    // EX10 - Função de apoio para comparação com margem de erro
+    private void assertEqualsComMargem(BigDecimal esperado, BigDecimal atual, String mensagem) {
+        BigDecimal diferenca = esperado.subtract(atual).abs();
+        BigDecimal margemErro = new BigDecimal("0.01");
+        assertTrue(diferenca.compareTo(margemErro) <= 0, mensagem);
+    }
+
     @Test
     @DisplayName("Deve calcular reembolso básico: R$ 200 com 70% = R$ 140")
     void deveCalcularReembolsoBasico() {
@@ -47,8 +54,8 @@ class CalculadoraReembolsoTest {
         // Act - Executar ação a ser testada
         BigDecimal reembolsoCalculado = calculadora.calcular(consulta, pacienteDummy);
 
-        // Assert - Verificar resultado
-        assertEquals(0, reembolsoEsperado.compareTo(reembolsoCalculado),
+        // Assert - EX10 - Usando comparação com margem de erro
+        assertEqualsComMargem(reembolsoEsperado, reembolsoCalculado,
                 "Reembolso deve ser 70% de R$ 200,00 = R$ 140,00");
     }
 
@@ -62,8 +69,8 @@ class CalculadoraReembolsoTest {
         // Act
         BigDecimal reembolsoCalculado = calculadora.calcular(consulta, pacienteDummy);
 
-        // Assert
-        assertEquals(0, reembolsoEsperado.compareTo(reembolsoCalculado),
+        // Assert - EX10 - Usando comparação com margem de erro
+        assertEqualsComMargem(reembolsoEsperado, reembolsoCalculado,
                 "Reembolso de consulta gratuita deve ser zero");
     }
 
@@ -77,8 +84,8 @@ class CalculadoraReembolsoTest {
         // Act
         BigDecimal reembolsoCalculado = calculadora.calcular(consulta, pacienteDummy);
 
-        // Assert
-        assertEquals(0, reembolsoEsperado.compareTo(reembolsoCalculado),
+        // Assert - EX10 - Usando comparação com margem de erro
+        assertEqualsComMargem(reembolsoEsperado, reembolsoCalculado,
                 "Reembolso com 100% de cobertura deve ser igual ao valor da consulta");
     }
 

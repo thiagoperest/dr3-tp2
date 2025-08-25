@@ -34,6 +34,13 @@ class CalculadoraReembolsoStubTest {
         planoPremium = new PlanoSaudeStubPremium(); // 80%
     }
 
+    // EX10 - Função de apoio para comparação com margem de erro
+    private void assertEqualsComMargem(BigDecimal esperado, BigDecimal atual, String mensagem) {
+        BigDecimal diferenca = esperado.subtract(atual).abs();
+        BigDecimal margemErro = new BigDecimal("0.01");
+        assertTrue(diferenca.compareTo(margemErro) <= 0, mensagem);
+    }
+
     @Test
     @DisplayName("Deve calcular reembolso com plano básico - R$ 200 com 50% = R$ 100")
     void deveCalcularReembolsoComPlanoBasico() {
@@ -44,8 +51,8 @@ class CalculadoraReembolsoStubTest {
         // Act - 50%
         BigDecimal reembolsoCalculado = calculadora.calcularComPlano(consulta, pacienteDummy, planoBasico);
 
-        // Assert
-        assertEquals(0, reembolsoEsperado.compareTo(reembolsoCalculado),
+        // Assert - EX10 - Usando comparação com margem de erro
+        assertEqualsComMargem(reembolsoEsperado, reembolsoCalculado,
                 "Reembolso deve ser 50% de R$ 200,00 = R$ 100,00");
         assertEquals("Plano Básico", planoBasico.getNome());
     }
@@ -60,8 +67,8 @@ class CalculadoraReembolsoStubTest {
         // Act - 80%
         BigDecimal reembolsoCalculado = calculadora.calcularComPlano(consulta, pacienteDummy, planoPremium);
 
-        // Assert
-        assertEquals(0, reembolsoEsperado.compareTo(reembolsoCalculado),
+        // Assert - EX10 - Usando comparação com margem de erro
+        assertEqualsComMargem(reembolsoEsperado, reembolsoCalculado,
                 "Reembolso deve ser 80% de R$ 200,00 = R$ 160,00");
         assertEquals("Plano Premium", planoPremium.getNome());
     }
@@ -77,9 +84,9 @@ class CalculadoraReembolsoStubTest {
         BigDecimal reembolso1 = calculadora.calcularComPlano(consulta1, pacienteDummy, planoBasico);
         BigDecimal reembolso2 = calculadora.calcularComPlano(consulta2, pacienteDummy, planoBasico);
 
-        // Assert - 50%
-        assertEquals(0, new BigDecimal("50.00").compareTo(reembolso1));
-        assertEquals(0, new BigDecimal("150.00").compareTo(reembolso2));
+        // Assert - EX10 - Usando comparação com margem de erro
+        assertEqualsComMargem(new BigDecimal("50.00"), reembolso1, "Reembolso1 deve ser R$ 50,00");
+        assertEqualsComMargem(new BigDecimal("150.00"), reembolso2, "Reembolso2 deve ser R$ 150,00");
     }
 
     @Test
@@ -92,9 +99,9 @@ class CalculadoraReembolsoStubTest {
         BigDecimal reembolsoBasico = calculadora.calcularComPlano(consulta, pacienteDummy, planoBasico);
         BigDecimal reembolsoPremium = calculadora.calcularComPlano(consulta, pacienteDummy, planoPremium);
 
-        // Assert
-        assertEquals(0, new BigDecimal("500.00").compareTo(reembolsoBasico)); // 50%
-        assertEquals(0, new BigDecimal("800.00").compareTo(reembolsoPremium)); // 80%
+        // Assert - EX10 - Usando comparação com margem de erro
+        assertEqualsComMargem(new BigDecimal("500.00"), reembolsoBasico, "Reembolso básico deve ser R$ 500,00");
+        assertEqualsComMargem(new BigDecimal("800.00"), reembolsoPremium, "Reembolso premium deve ser R$ 800,00");
 
         assertTrue(reembolsoPremium.compareTo(reembolsoBasico) > 0);
     }
