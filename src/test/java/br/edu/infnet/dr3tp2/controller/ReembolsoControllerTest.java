@@ -6,6 +6,7 @@ import br.edu.infnet.dr3tp2.dto.ReembolsoResponse;
 import br.edu.infnet.dr3tp2.model.Consulta;
 import br.edu.infnet.dr3tp2.model.Paciente;
 import br.edu.infnet.dr3tp2.service.ReembolsoService;
+import br.edu.infnet.dr3tp2.service.PlanoSaude;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -176,5 +177,165 @@ class ReembolsoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    @DisplayName("Deve calcular reembolso com plano básico via API")
+    void deveCalcularReembolsoComPlanoBasicoViaAPI() throws Exception {
+        // Arrange
+        Consulta consulta = new Consulta(new BigDecimal("200.00"), null);
+        BigDecimal reembolsoEsperado = new BigDecimal("100.00");
+
+        // Mock
+        when(reembolsoService.calcularReembolsoComPlano(any(Consulta.class), any(PlanoSaude.class)))
+                .thenReturn(reembolsoEsperado);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/reembolso/calcular-com-plano")
+                        .param("tipoPlano", "basico")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(consulta)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.valorConsulta").value(200.00))
+                .andExpect(jsonPath("$.percentualCobertura").value(0.50))
+                .andExpect(jsonPath("$.valorReembolso").value(100.00))
+                .andExpect(jsonPath("$.status").value("sucesso"));
+    }
+
+    @Test
+    @DisplayName("Deve calcular reembolso com plano premium via API")
+    void deveCalcularReembolsoComPlanoPremiumViaAPI() throws Exception {
+        // Arrange
+        Consulta consulta = new Consulta(new BigDecimal("200.00"), null);
+        BigDecimal reembolsoEsperado = new BigDecimal("160.00");
+
+        // Mock
+        when(reembolsoService.calcularReembolsoComPlano(any(Consulta.class), any(PlanoSaude.class)))
+                .thenReturn(reembolsoEsperado);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/reembolso/calcular-com-plano")
+                        .param("tipoPlano", "premium")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(consulta)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.valorConsulta").value(200.00))
+                .andExpect(jsonPath("$.percentualCobertura").value(0.80))
+                .andExpect(jsonPath("$.valorReembolso").value(160.00))
+                .andExpect(jsonPath("$.status").value("sucesso"));
+    }
+
+    @Test
+    @DisplayName("Deve retornar erro para tipo de plano inválido")
+    void deveRetornarErroParaTipoPlanoInvalido() throws Exception {
+        // Arrange
+        Consulta consulta = new Consulta(new BigDecimal("200.00"), null);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/reembolso/calcular-com-plano")
+                        .param("tipoPlano", "inexistente")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(consulta)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erro").value("Tipo de plano inválido: inexistente"))
+                .andExpect(jsonPath("$.status").value("erro"));
+    }
+
+    @Test
+    @DisplayName("Deve retornar erro quando service lança exceção com plano")
+    void deveRetornarErroQuandoServiceLancaExcecaoComPlano() throws Exception {
+        // Arrange
+        Consulta consulta = new Consulta(new BigDecimal("-100.00"), null);
+
+        // Mock
+        when(reembolsoService.calcularReembolsoComPlano(any(Consulta.class), any(PlanoSaude.class)))
+                .thenThrow(new IllegalArgumentException("Valor da consulta deve ser maior ou igual a zero"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/reembolso/calcular-com-plano")
+                        .param("tipoPlano", "basico")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(consulta)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erro").value("Valor da consulta deve ser maior ou igual a zero"))
+                .andExpect(jsonPath("$.status").value("erro"));
+    }
+
+    @Test
+    @DisplayName("Deve verificar comportamento de stub básico via API")
+    void deveVerificarComportamentoStubBasicoViaAPI() throws Exception {
+        // Arrange
+        Consulta consulta1 = new Consulta(new BigDecimal("100.00"), null);
+        Consulta consulta2 = new Consulta(new BigDecimal("300.00"), null);
+
+        when(reembolsoService.calcularReembolsoComPlano(any(Consulta.class), any(PlanoSaude.class)))
+                .thenReturn(new BigDecimal("50.00"))
+                .thenReturn(new BigDecimal("150.00"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/reembolso/calcular-com-plano")
+                        .param("tipoPlano", "basico")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(consulta1)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.valorReembolso").value(50.00))
+                .andExpect(jsonPath("$.percentualCobertura").value(0.50));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/reembolso/calcular-com-plano")
+                        .param("tipoPlano", "basico")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(consulta2)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.valorReembolso").value(150.00))
+                .andExpect(jsonPath("$.percentualCobertura").value(0.50));
+    }
+
+    @Test
+    @DisplayName("Deve comparar diferentes planos via API")
+    void deveCompararDiferentesPlanosViaAPI() throws Exception {
+        // Arrange
+        Consulta consulta = new Consulta(new BigDecimal("1000.00"), null);
+
+        when(reembolsoService.calcularReembolsoComPlano(any(Consulta.class), any(PlanoSaude.class)))
+                .thenReturn(new BigDecimal("500.00"))
+                .thenReturn(new BigDecimal("800.00"));
+
+        // Act & Assert - Plano Básico
+        mockMvc.perform(post("/api/reembolso/calcular-com-plano")
+                        .param("tipoPlano", "basico")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(consulta)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.valorReembolso").value(500.00))
+                .andExpect(jsonPath("$.percentualCobertura").value(0.50));
+
+        // Act & Assert - Plano Premium
+        mockMvc.perform(post("/api/reembolso/calcular-com-plano")
+                        .param("tipoPlano", "premium")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(consulta)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.valorReembolso").value(800.00))
+                .andExpect(jsonPath("$.percentualCobertura").value(0.80));
+    }
+
+    @Test
+    @DisplayName("Deve propagar exceção da calculadora via API")
+    void devePropagarExcecaoDaCalculadoraViaAPI() throws Exception {
+        // Arrange
+        Consulta consulta = new Consulta(new BigDecimal("-100.00"), null);
+
+        when(reembolsoService.calcularReembolsoComPlano(any(Consulta.class), any(PlanoSaude.class)))
+                .thenThrow(new IllegalArgumentException("Valor inválido"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/reembolso/calcular-com-plano")
+                        .param("tipoPlano", "basico")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(consulta)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erro").value("Valor inválido"))
+                .andExpect(jsonPath("$.status").value("erro"));
     }
 }
