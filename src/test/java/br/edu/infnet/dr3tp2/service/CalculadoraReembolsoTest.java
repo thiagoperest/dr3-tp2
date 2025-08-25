@@ -152,4 +152,66 @@ class CalculadoraReembolsoTest {
         assertEquals(pacienteDummy.getNome(), registro.paciente().getNome());
         assertEquals(pacienteDummy.getCpf(), registro.paciente().getCpf());
     }
+
+    // EX11
+
+    @Test
+    @DisplayName("Deve limitar reembolso ao teto de R$ 150 - Consulta R$ 300 com 100%")
+    void deveLimitarReembolsoAoTeto() {
+        // Arrange - Consulta que resultaria em R$ 300 de reembolso
+        Consulta consulta = new Consulta(new BigDecimal("300.00"), new BigDecimal("1.00"));
+        BigDecimal tetoEsperado = new BigDecimal("150.00");
+
+        // Act
+        BigDecimal reembolsoCalculado = calculadora.calcular(consulta, pacienteDummy);
+
+        // Assert - EX11 - Deve ser limitado a R$ 150
+        assertEqualsComMargem(tetoEsperado, reembolsoCalculado,
+                "Reembolso deve ser limitado ao teto de R$ 150,00");
+    }
+
+    @Test
+    @DisplayName("Deve limitar reembolso ao teto - Consulta R$ 500 com 80%")
+    void deveLimitarReembolsoAoTetoConsultaCara() {
+        // Arrange - Consulta cara que resultaria em R$ 400 de reembolso
+        Consulta consulta = new Consulta(new BigDecimal("500.00"), new BigDecimal("0.80"));
+        BigDecimal tetoEsperado = new BigDecimal("150.00");
+
+        // Act
+        BigDecimal reembolsoCalculado = calculadora.calcular(consulta, pacienteDummy);
+
+        // Assert - EX11 - Deve ser limitado a R$ 150
+        assertEqualsComMargem(tetoEsperado, reembolsoCalculado,
+                "Reembolso deve ser limitado ao teto de R$ 150,00");
+    }
+
+    @Test
+    @DisplayName("Não deve alterar reembolso abaixo do teto - R$ 100")
+    void naoDeveAlterarReembolsoAbaixoDoTeto() {
+        // Arrange - Consulta que resulta em valor abaixo do teto
+        Consulta consulta = new Consulta(new BigDecimal("200.00"), new BigDecimal("0.50"));
+        BigDecimal reembolsoEsperado = new BigDecimal("100.00");
+
+        // Act
+        BigDecimal reembolsoCalculado = calculadora.calcular(consulta, pacienteDummy);
+
+        // Assert - EX11 - Não deve ser alterado pois está abaixo do teto
+        assertEqualsComMargem(reembolsoEsperado, reembolsoCalculado,
+                "Reembolso de R$ 100,00 não deve ser alterado (abaixo do teto)");
+    }
+
+    @Test
+    @DisplayName("Deve limitar exatamente no teto - R$ 150")
+    void deveLimitarExatamenteNoTeto() {
+        // Arrange - Consulta que resulta exatamente no teto
+        Consulta consulta = new Consulta(new BigDecimal("150.00"), new BigDecimal("1.00"));
+        BigDecimal reembolsoEsperado = new BigDecimal("150.00");
+
+        // Act
+        BigDecimal reembolsoCalculado = calculadora.calcular(consulta, pacienteDummy);
+
+        // Assert - EX11 - Deve manter R$ 150
+        assertEqualsComMargem(reembolsoEsperado, reembolsoCalculado,
+                "Reembolso de R$ 150,00 deve manter o valor (no teto)");
+    }
 }

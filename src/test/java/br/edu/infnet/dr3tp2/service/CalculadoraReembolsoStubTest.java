@@ -58,18 +58,18 @@ class CalculadoraReembolsoStubTest {
     }
 
     @Test
-    @DisplayName("Deve calcular reembolso com plano premium - R$ 200 com 80% = R$ 160")
+    @DisplayName("Deve calcular reembolso com plano premium - R$ 200 com 80% = R$ 150 (limitado)")
     void deveCalcularReembolsoComPlanoPremium() {
         // Arrange
         Consulta consulta = new Consulta(new BigDecimal("200.00"), null);
-        BigDecimal reembolsoEsperado = new BigDecimal("160.00");
+        BigDecimal reembolsoEsperado = new BigDecimal("150.00"); // EX11 - Limitado pelo teto
 
-        // Act - 80%
+        // Act - 80% de R$ 200 = R$ 160, mas limitado a R$ 150
         BigDecimal reembolsoCalculado = calculadora.calcularComPlano(consulta, pacienteDummy, planoPremium);
 
         // Assert - EX10 - Usando comparação com margem de erro
         assertEqualsComMargem(reembolsoEsperado, reembolsoCalculado,
-                "Reembolso deve ser 80% de R$ 200,00 = R$ 160,00");
+                "Reembolso deve ser limitado ao teto de R$ 150,00");
         assertEquals("Plano Premium", planoPremium.getNome());
     }
 
@@ -86,7 +86,7 @@ class CalculadoraReembolsoStubTest {
 
         // Assert - EX10 - Usando comparação com margem de erro
         assertEqualsComMargem(new BigDecimal("50.00"), reembolso1, "Reembolso1 deve ser R$ 50,00");
-        assertEqualsComMargem(new BigDecimal("150.00"), reembolso2, "Reembolso2 deve ser R$ 150,00");
+        assertEqualsComMargem(new BigDecimal("150.00"), reembolso2, "Reembolso2 deve ser R$ 150,00"); // EX11 - Limitado ao teto
     }
 
     @Test
@@ -99,11 +99,59 @@ class CalculadoraReembolsoStubTest {
         BigDecimal reembolsoBasico = calculadora.calcularComPlano(consulta, pacienteDummy, planoBasico);
         BigDecimal reembolsoPremium = calculadora.calcularComPlano(consulta, pacienteDummy, planoPremium);
 
-        // Assert - EX10 - Usando comparação com margem de erro
-        assertEqualsComMargem(new BigDecimal("500.00"), reembolsoBasico, "Reembolso básico deve ser R$ 500,00");
-        assertEqualsComMargem(new BigDecimal("800.00"), reembolsoPremium, "Reembolso premium deve ser R$ 800,00");
+        // Assert - EX11 - Ambos limitados ao teto de R$ 150
+        assertEqualsComMargem(new BigDecimal("150.00"), reembolsoBasico, "Reembolso básico limitado ao teto");
+        assertEqualsComMargem(new BigDecimal("150.00"), reembolsoPremium, "Reembolso premium limitado ao teto");
 
-        assertTrue(reembolsoPremium.compareTo(reembolsoBasico) > 0);
+        // EX11
+        assertEquals(0, reembolsoPremium.compareTo(reembolsoBasico));
+    }
+
+    // EX11 - NOVOS TESTES PARA VALIDAR TETO COM PLANOS
+
+    @Test
+    @DisplayName("Deve limitar plano premium ao teto - R$ 300 com 80%")
+    void deveLimitarPlanoPremiumAoTeto() {
+        // Arrange - Consulta que resultaria em R$ 240 (80% de R$ 300)
+        Consulta consulta = new Consulta(new BigDecimal("300.00"), null);
+        BigDecimal tetoEsperado = new BigDecimal("150.00");
+
+        // Act
+        BigDecimal reembolsoCalculado = calculadora.calcularComPlano(consulta, pacienteDummy, planoPremium);
+
+        // Assert - EX11 - Deve ser limitado ao teto
+        assertEqualsComMargem(tetoEsperado, reembolsoCalculado,
+                "Reembolso deve ser limitado ao teto de R$ 150,00");
+    }
+
+    @Test
+    @DisplayName("Deve limitar plano básico ao teto - R$ 400 com 50%")
+    void deveLimitarPlanoBasicoAoTeto() {
+        // Arrange - Consulta que resultaria em R$ 200 (50% de R$ 400)
+        Consulta consulta = new Consulta(new BigDecimal("400.00"), null);
+        BigDecimal tetoEsperado = new BigDecimal("150.00");
+
+        // Act
+        BigDecimal reembolsoCalculado = calculadora.calcularComPlano(consulta, pacienteDummy, planoBasico);
+
+        // Assert - EX11 - Deve ser limitado ao teto
+        assertEqualsComMargem(tetoEsperado, reembolsoCalculado,
+                "Reembolso deve ser limitado ao teto de R$ 150,00");
+    }
+
+    @Test
+    @DisplayName("Não deve alterar plano abaixo do teto - R$ 200 com 50%")
+    void naoDeveAlterarPlanoAbaixoDoTeto() {
+        // Arrange - Consulta que resulta em R$ 100 (abaixo do teto)
+        Consulta consulta = new Consulta(new BigDecimal("200.00"), null);
+        BigDecimal reembolsoEsperado = new BigDecimal("100.00");
+
+        // Act
+        BigDecimal reembolsoCalculado = calculadora.calcularComPlano(consulta, pacienteDummy, planoBasico);
+
+        // Assert - EX11
+        assertEqualsComMargem(reembolsoEsperado, reembolsoCalculado,
+                "Reembolso de R$ 100,00 não deve ser alterado (abaixo do teto)");
     }
 
     @Test
