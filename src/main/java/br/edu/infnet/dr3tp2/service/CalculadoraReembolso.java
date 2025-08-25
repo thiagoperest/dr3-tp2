@@ -44,4 +44,35 @@ public class CalculadoraReembolso {
                 .multiply(consulta.getPercentualCobertura())
                 .setScale(2, RoundingMode.HALF_UP);
     }
+
+    /**
+     * Calcula o valor de reembolso usando plano de saúde
+     *
+     * @param consulta Consulta com valor
+     * @param paciente Paciente (dummy)
+     * @param planoSaude Plano que define percentual de cobertura
+     * @return Valor do reembolso calculado
+     * @throws IllegalArgumentException para dados inválidos
+     */
+    public BigDecimal calcularComPlano(Consulta consulta, Paciente paciente, PlanoSaude planoSaude) {
+        // Validações obrigatórias
+        if (consulta == null) {
+            throw new IllegalArgumentException("Consulta não pode ser nula");
+        }
+        if (planoSaude == null) {
+            throw new IllegalArgumentException("Plano de saúde não pode ser nulo");
+        }
+
+        // Validação do valor da consulta
+        if (consulta.getValor() == null || consulta.getValor().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Valor da consulta deve ser maior ou igual a zero");
+        }
+
+        BigDecimal percentualPlano = planoSaude.getPercentualCobertura();
+
+        // Cálculo do reembolso usando percentual do plano
+        return consulta.getValor()
+                .multiply(percentualPlano)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
 }

@@ -4,6 +4,9 @@ import br.edu.infnet.dr3tp2.dto.HistoricoResponse;
 import br.edu.infnet.dr3tp2.dto.ReembolsoResponse;
 import br.edu.infnet.dr3tp2.dto.StatusResponse;
 import br.edu.infnet.dr3tp2.model.Consulta;
+import br.edu.infnet.dr3tp2.service.PlanoSaudeStubBasico;
+import br.edu.infnet.dr3tp2.service.PlanoSaudeStubPremium;
+import br.edu.infnet.dr3tp2.service.PlanoSaude;
 import br.edu.infnet.dr3tp2.service.ReembolsoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -48,6 +51,47 @@ public class ReembolsoController {
                     "status", "erro"
             ));
         }
+    }
+
+    /**
+     * Endpoint para calcular reembolso com plano de saúde
+     *
+     * @param consulta Dados da consulta médica
+     * @param tipoPlano Tipo do plano (basico ou premium)
+     * @return Valor do reembolso calculado usando plano
+     */
+    @PostMapping("/calcular-com-plano")
+    public ResponseEntity<?> calcularReembolsoComPlano(
+            @RequestBody Consulta consulta,
+            @RequestParam String tipoPlano) {
+        try {
+            // Factory para criar stubs
+            PlanoSaude plano = criarPlano(tipoPlano);
+
+            BigDecimal valorReembolso = reembolsoService.calcularReembolsoComPlano(consulta, plano);
+
+            ReembolsoResponse response = new ReembolsoResponse(
+                    consulta.getValor(),
+                    plano.getPercentualCobertura(),
+                    valorReembolso,
+                    "sucesso"
+            );
+
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "erro", e.getMessage(),
+                    "status", "erro"
+            ));
+        }
+    }
+
+    private PlanoSaude criarPlano(String tipoPlano) {
+        return switch (tipoPlano.toLowerCase()) {
+            case "basico" -> new PlanoSaudeStubBasico();
+            case "premium" -> new PlanoSaudeStubPremium();
+            default -> throw new IllegalArgumentException("Tipo de plano inválido: " + tipoPlano);
+        };
     }
 
     /**

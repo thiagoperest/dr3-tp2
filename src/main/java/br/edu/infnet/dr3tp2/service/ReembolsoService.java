@@ -30,17 +30,20 @@ public class ReembolsoService {
      */
     public BigDecimal calcularReembolso(Consulta consulta) {
         Paciente pacienteDummy = new Paciente("Dummy", "000.000.000-00");
+        return calculadoraReembolso.calcular(consulta, pacienteDummy);
+    }
 
-        BigDecimal valorReembolso = calculadoraReembolso.calcular(consulta, pacienteDummy);
-
-        // Salva no histórico após calcular com valor do reembolso
-        if (historicoConsultas instanceof HistoricoConsultasFake) {
-            ((HistoricoConsultasFake) historicoConsultas).salvarComReembolso(consulta, pacienteDummy, valorReembolso);
-        } else {
-            historicoConsultas.salvar(consulta, pacienteDummy);
-        }
-
-        return valorReembolso;
+    /**
+     * Calcula o valor de reembolso usando plano de saúde
+     *
+     * @param consulta Consulta com valor
+     * @param planoSaude Plano que define percentual de cobertura
+     * @return Valor do reembolso calculado
+     * @throws IllegalArgumentException para dados inválidos
+     */
+    public BigDecimal calcularReembolsoComPlano(Consulta consulta, PlanoSaude planoSaude) {
+        Paciente pacienteDummy = new Paciente("Dummy", "000.000.000-00");
+        return calculadoraReembolso.calcularComPlano(consulta, pacienteDummy, planoSaude);
     }
 
     /**
