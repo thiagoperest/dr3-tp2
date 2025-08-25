@@ -13,6 +13,9 @@ import java.math.RoundingMode;
 @Component
 public class CalculadoraReembolso {
 
+    // EX11 - Aplicando o teto máximo de reembolso por consulta de R$ 150.00
+    private static final BigDecimal TETO_REEMBOLSO = new BigDecimal("150.00");
+
     /**
      * Calcula o valor de reembolso de uma consulta médica
      *
@@ -40,9 +43,12 @@ public class CalculadoraReembolso {
         }
 
         // Cálculo do reembolso: valor * percentual de cobertura
-        return consulta.getValor()
+        BigDecimal reembolsoCalculado = consulta.getValor()
                 .multiply(consulta.getPercentualCobertura())
                 .setScale(2, RoundingMode.HALF_UP);
+
+        // EX11 - Aplicar teto de R$ 150,00
+        return aplicarTeto(reembolsoCalculado);
     }
 
     /**
@@ -71,8 +77,19 @@ public class CalculadoraReembolso {
         BigDecimal percentualPlano = planoSaude.getPercentualCobertura();
 
         // Cálculo do reembolso usando percentual do plano
-        return consulta.getValor()
+        BigDecimal reembolsoCalculado = consulta.getValor()
                 .multiply(percentualPlano)
                 .setScale(2, RoundingMode.HALF_UP);
+
+        // EX11 - Aplicar teto de R$ 150,00
+        return aplicarTeto(reembolsoCalculado);
+    }
+
+    // EX11 - Método para aplicar o teto de reembolso
+    private BigDecimal aplicarTeto(BigDecimal valorCalculado) {
+        if (valorCalculado.compareTo(TETO_REEMBOLSO) > 0) {
+            return TETO_REEMBOLSO;
+        }
+        return valorCalculado;
     }
 }
