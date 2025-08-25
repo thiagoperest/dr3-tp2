@@ -23,7 +23,6 @@ class CalculadoraReembolsoTest {
 
     private CalculadoraReembolso calculadora;
     private Paciente pacienteDummy;
-    private ReembolsoService reembolsoService;
     private HistoricoConsultasFake historico;
 
     @BeforeEach
@@ -34,7 +33,6 @@ class CalculadoraReembolsoTest {
 
         // Setup para testes de integração com histórico
         historico = new HistoricoConsultasFake();
-        reembolsoService = new ReembolsoService();
     }
 
     // EX10 - Função de apoio para comparação com margem de erro
