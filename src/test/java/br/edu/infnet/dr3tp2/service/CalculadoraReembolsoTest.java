@@ -1,5 +1,6 @@
 package br.edu.infnet.dr3tp2.service;
 
+import br.edu.infnet.dr3tp2.helper.ConsultaTestHelper; // EX9 - Import do helper
 import br.edu.infnet.dr3tp2.model.Consulta;
 import br.edu.infnet.dr3tp2.model.Paciente;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,11 +40,8 @@ class CalculadoraReembolsoTest {
     @Test
     @DisplayName("Deve calcular reembolso básico: R$ 200 com 70% = R$ 140")
     void deveCalcularReembolsoBasico() {
-        // Arrange - Dados de entrada isolados
-        Consulta consulta = new Consulta(
-                new BigDecimal("200.00"),
-                new BigDecimal("0.70")  // 70% de cobertura do reembolso
-        );
+        // Arrange - EX9 - Usando helper
+        Consulta consulta = ConsultaTestHelper.criarConsultaPadrao();
         BigDecimal reembolsoEsperado = new BigDecimal("140.00");
 
         // Act - Executar ação a ser testada
@@ -57,11 +55,8 @@ class CalculadoraReembolsoTest {
     @Test
     @DisplayName("Deve calcular reembolso com valor zero")
     void deveCalcularReembolsoComValorZero() {
-        // Arrange
-        Consulta consulta = new Consulta(
-                BigDecimal.ZERO,
-                new BigDecimal("0.80")
-        );
+        // Arrange - EX9 - Usando helper para criar uma consulta com valor zero
+        Consulta consulta = ConsultaTestHelper.criarConsultaComValor(BigDecimal.ZERO);
         BigDecimal reembolsoEsperado = BigDecimal.ZERO;
 
         // Act
@@ -75,11 +70,8 @@ class CalculadoraReembolsoTest {
     @Test
     @DisplayName("Deve calcular reembolso com cobertura 100%")
     void deveCalcularReembolsoComCoberturaTotal() {
-        // Arrange
-        Consulta consulta = new Consulta(
-                new BigDecimal("150.00"),
-                new BigDecimal("1.00")  // 100% de cobertura - reembolso total do valor da consulta
-        );
+        // Arrange - EX9 - Usando helper para criar consulta personalizada
+        Consulta consulta = ConsultaTestHelper.criarConsulta(new BigDecimal("150.00"), new BigDecimal("1.00"));
         BigDecimal reembolsoEsperado = new BigDecimal("150.00");
 
         // Act

@@ -1,5 +1,6 @@
 package br.edu.infnet.dr3tp2.service;
 
+import br.edu.infnet.dr3tp2.helper.ConsultaTestHelper; // EX9 - Import do helper
 import br.edu.infnet.dr3tp2.model.Consulta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,9 @@ class ReembolsoServiceMockTest {
     @Mock
     private AutorizadorReembolso autorizadorReembolso;
 
+    @Mock
+    private HistoricoConsultas historicoConsultas;
+
     @InjectMocks
     private ReembolsoService reembolsoService;
 
@@ -41,9 +45,9 @@ class ReembolsoServiceMockTest {
     @Test
     @DisplayName("Deve calcular reembolso quando autorizado - Consulta R$ 1.000")
     void deveCalcularReembolsoQuandoAutorizado() {
-        // Arrange
-        Consulta consulta = new Consulta(new BigDecimal("1000.00"), new BigDecimal("0.70"));
-        BigDecimal reembolsoEsperado = new BigDecimal("700.00");
+        // Arrange - EX9 - Usando helper
+        Consulta consulta = ConsultaTestHelper.criarConsultaAutorizada();
+        BigDecimal reembolsoEsperado = new BigDecimal("1050.00");
 
         // Mock configurado para autorizar
         when(autorizadorReembolso.isAutorizado(any(), any())).thenReturn(true);
@@ -58,13 +62,14 @@ class ReembolsoServiceMockTest {
         // Verificar interações com os mocks
         verify(autorizadorReembolso).isAutorizado(any(), any());
         verify(calculadoraReembolso).calcular(any(), any());
+        verify(historicoConsultas).salvar(any(), any()); // EX9 - Verifica que histórico foi salvo
     }
 
     @Test
     @DisplayName("Deve lançar exceção quando não autorizado - Consulta R$ 3.000")
     void deveLancarExcecaoQuandoNaoAutorizado() {
-        // Arrange
-        Consulta consulta = new Consulta(new BigDecimal("3000.00"), new BigDecimal("0.70"));
+        // Arrange - EX9 - Usando helper para criar consulta não autorizada
+        Consulta consulta = ConsultaTestHelper.criarConsultaNaoAutorizada();
 
         // Mock configurado para negar autorização
         when(autorizadorReembolso.isAutorizado(any(), any())).thenReturn(false);
@@ -81,13 +86,14 @@ class ReembolsoServiceMockTest {
         verify(autorizadorReembolso).isAutorizado(any(), any());
         verify(autorizadorReembolso).getMotivoNegacao();
         verify(calculadoraReembolso, never()).calcular(any(), any());
+        verify(historicoConsultas, never()).salvar(any(), any());
     }
 
     @Test
     @DisplayName("Deve calcular reembolso com plano quando autorizado")
     void deveCalcularReembolsoComPlanoQuandoAutorizado() {
-        // Arrange
-        Consulta consulta = new Consulta(new BigDecimal("1500.00"), null);
+        // Arrange - EX9 - Usando helper para criar consulta para plano
+        Consulta consulta = ConsultaTestHelper.criarConsultaParaPlano(new BigDecimal("1500.00"));
         BigDecimal reembolsoEsperado = new BigDecimal("750.00");
 
         // Mocks configurados
@@ -137,5 +143,6 @@ class ReembolsoServiceMockTest {
         assertDoesNotThrow(() -> reembolsoService.calcularReembolso(consulta));
 
         verify(calculadoraReembolso).calcular(any(), any());
+        verify(historicoConsultas).salvar(any(), any());
     }
 }
