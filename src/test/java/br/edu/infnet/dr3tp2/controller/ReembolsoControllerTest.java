@@ -338,4 +338,89 @@ class ReembolsoControllerTest {
                 .andExpect(jsonPath("$.erro").value("Valor inválido"))
                 .andExpect(jsonPath("$.status").value("erro"));
     }
+
+    // EX8
+
+    @Test
+    @DisplayName("Deve bloquear consulta acima de R$ 2.000 via API")
+    void deveBloquerConsultaAcimaLimiteViaAPI() throws Exception {
+        // Arrange - Consulta não autorizada (acima de R$ 2.000)
+        Consulta consulta = new Consulta(new BigDecimal("2500.00"), new BigDecimal("0.70"));
+
+        // Mock configurado para lançar SecurityException
+        when(reembolsoService.calcularReembolso(any(Consulta.class)))
+                .thenThrow(new SecurityException("Consulta não autorizada para reembolso: Valor da consulta excede o limite de R$ 2.000,00 para reembolso automático"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/reembolso/calcular")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(consulta)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erro").value("Consulta não autorizada para reembolso: Valor da consulta excede o limite de R$ 2.000,00 para reembolso automático"))
+                .andExpect(jsonPath("$.status").value("erro"));
+    }
+
+    @Test
+    @DisplayName("Deve bloquear plano com valor acima de R$ 2.000 via API")
+    void deveBloquerPlanoAcimaLimiteViaAPI() throws Exception {
+        // Arrange - Plano com valor não autorizado
+        Consulta consulta = new Consulta(new BigDecimal("3000.00"), null);
+
+        // Mock configurado para lançar SecurityException
+        when(reembolsoService.calcularReembolsoComPlano(any(Consulta.class), any(PlanoSaude.class)))
+                .thenThrow(new SecurityException("Consulta não autorizada para reembolso: Valor da consulta excede o limite de R$ 2.000,00 para reembolso automático"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/reembolso/calcular-com-plano")
+                        .param("tipoPlano", "premium")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(consulta)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erro").value("Consulta não autorizada para reembolso: Valor da consulta excede o limite de R$ 2.000,00 para reembolso automático"))
+                .andExpect(jsonPath("$.status").value("erro"));
+    }
+
+    @Test
+    @DisplayName("Deve calcular reembolso autorizado abaixo do limite - R$ 1.500")
+    void deveCalcularReembolsoAutorizadoAbaixoLimite() throws Exception {
+        // Arrange - Consulta autorizada (abaixo de R$ 2.000)
+        Consulta consulta = new Consulta(new BigDecimal("1500.00"), new BigDecimal("0.70"));
+        BigDecimal reembolsoEsperado = new BigDecimal("1050.00");
+
+        // Configurar comportamento do mock
+        when(reembolsoService.calcularReembolso(any(Consulta.class)))
+                .thenReturn(reembolsoEsperado);
+
+        // Act & Assert - Executar requisição e verificar resposta
+        mockMvc.perform(post("/api/reembolso/calcular")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(consulta)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.valorConsulta").value(1500.00))
+                .andExpect(jsonPath("$.percentualCobertura").value(0.70))
+                .andExpect(jsonPath("$.valorReembolso").value(1050.00))
+                .andExpect(jsonPath("$.status").value("sucesso"));
+    }
+
+    @Test
+    @DisplayName("Deve calcular reembolso exatamente no limite - R$ 2.000")
+    void deveCalcularReembolsoExatamenteNoLimite() throws Exception {
+        // Arrange - Consulta no limite (exatamente R$ 2.000)
+        Consulta consulta = new Consulta(new BigDecimal("2000.00"), new BigDecimal("0.80"));
+        BigDecimal reembolsoEsperado = new BigDecimal("1600.00");
+
+        // Configurar Mock
+        when(reembolsoService.calcularReembolso(any(Consulta.class)))
+                .thenReturn(reembolsoEsperado);
+
+        // Act & Assert - Executar requisição e verificar resposta
+        mockMvc.perform(post("/api/reembolso/calcular")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(consulta)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.valorConsulta").value(2000.00))
+                .andExpect(jsonPath("$.percentualCobertura").value(0.80))
+                .andExpect(jsonPath("$.valorReembolso").value(1600.00))
+                .andExpect(jsonPath("$.status").value("sucesso"));
+    }
 }
