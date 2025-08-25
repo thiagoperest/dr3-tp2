@@ -1,5 +1,6 @@
 package br.edu.infnet.dr3tp2.controller;
 
+import br.edu.infnet.dr3tp2.dto.HistoricoResponse;
 import br.edu.infnet.dr3tp2.dto.ReembolsoResponse;
 import br.edu.infnet.dr3tp2.dto.StatusResponse;
 import br.edu.infnet.dr3tp2.model.Consulta;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,6 +48,29 @@ public class ReembolsoController {
                     "status", "erro"
             ));
         }
+    }
+
+    /**
+     * Endpoint para consultar histórico com dados dos pacientes
+     *
+     * @return Lista de histórico completo
+     */
+    @GetMapping("/historico")
+    public ResponseEntity<List<HistoricoResponse>> consultarHistorico() {
+        List<HistoricoResponse> historico = reembolsoService.buscarHistorico();
+        return ResponseEntity.ok(historico);
+    }
+
+    /**
+     * Endpoint para consultar histórico por CPF do paciente
+     *
+     * @param cpf CPF do paciente
+     * @return Lista de histórico do paciente
+     */
+    @GetMapping("/historico/paciente/{cpf}")
+    public ResponseEntity<List<HistoricoResponse>> consultarHistoricoPorPaciente(@PathVariable String cpf) {
+        List<HistoricoResponse> historico = reembolsoService.buscarHistoricoPorPaciente(cpf);
+        return ResponseEntity.ok(historico);
     }
 
     /**
