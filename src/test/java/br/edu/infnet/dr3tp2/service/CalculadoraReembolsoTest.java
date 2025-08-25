@@ -22,12 +22,18 @@ class CalculadoraReembolsoTest {
 
     private CalculadoraReembolso calculadora;
     private Paciente pacienteDummy;
+    private ReembolsoService reembolsoService;
+    private HistoricoConsultasFake historico;
 
     @BeforeEach
     void setUp() {
         // Configuração inicial para cada teste, instanciando a classe a ser testada
         calculadora = new CalculadoraReembolso();
         pacienteDummy = new Paciente("João Silva", "123.456.789-00");
+
+        // Setup para testes de integração com histórico
+        historico = new HistoricoConsultasFake();
+        reembolsoService = new ReembolsoService();
     }
 
     @Test
@@ -106,5 +112,47 @@ class CalculadoraReembolsoTest {
         assertThrows(IllegalArgumentException.class,
                 () -> calculadora.calcular(consulta, pacienteDummy),
                 "Deve lançar exceção para percentual maior que 100%");
+    }
+
+    @Test
+    @DisplayName("Deve salvar consulta no histórico após cálculo")
+    void deveSalvarConsultaNoHistoricoAposCalculo() {
+        // Arrange
+        Consulta consulta = new Consulta(new BigDecimal("200.00"), new BigDecimal("0.70"));
+        BigDecimal reembolso = consulta.getValor().multiply(consulta.getPercentualCobertura());
+
+        // Act
+        historico.salvarComReembolso(consulta, pacienteDummy, reembolso);
+
+        // Assert
+        assertEquals(1, historico.buscarHistorico().size());
+        var registro = historico.buscarHistorico().get(0);
+        assertEquals(consulta.getValor(), registro.reembolso().valorConsulta());
+        assertEquals(pacienteDummy.getNome(), registro.paciente().getNome());
+    }
+
+    @Test
+    @DisplayName("Deve buscar histórico completo por paciente específico")
+    void deveBuscarHistoricoCompletoPorPaciente() {
+        // Arrange
+        Consulta consulta1 = new Consulta(new BigDecimal("200.00"), new BigDecimal("0.70"));
+        Consulta consulta2 = new Consulta(new BigDecimal("150.00"), new BigDecimal("0.80"));
+        Paciente paciente2 = new Paciente("Maria Santos", "987.654.321-00");
+
+        BigDecimal reembolso1 = consulta1.getValor().multiply(consulta1.getPercentualCobertura());
+        BigDecimal reembolso2 = consulta2.getValor().multiply(consulta2.getPercentualCobertura());
+
+        // Act
+        historico.salvarComReembolso(consulta1, pacienteDummy, reembolso1);
+        historico.salvarComReembolso(consulta2, paciente2, reembolso2);
+
+        // Assert
+        var historicoPaciente1 = historico.buscarHistoricoPorPaciente("123.456.789-00");
+        assertEquals(1, historicoPaciente1.size());
+
+        var registro = historicoPaciente1.get(0);
+        assertEquals(consulta1.getValor(), registro.reembolso().valorConsulta());
+        assertEquals(pacienteDummy.getNome(), registro.paciente().getNome());
+        assertEquals(pacienteDummy.getCpf(), registro.paciente().getCpf());
     }
 }
