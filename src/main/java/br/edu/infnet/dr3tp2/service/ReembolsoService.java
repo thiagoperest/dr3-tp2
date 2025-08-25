@@ -24,22 +24,46 @@ public class ReembolsoService {
     @Autowired(required = false)
     Auditoria auditoria;
 
+    // EX8
+    @Autowired(required = false)
+    AutorizadorReembolso autorizadorReembolso;
+
     /**
      * Calcula o valor de reembolso de uma consulta médica
      *
      * @param consulta Consulta com valor e percentual de cobertura
      * @return Valor do reembolso calculado
      * @throws IllegalArgumentException para dados inválidos
+     * @throws SecurityException para consultas não autorizadas - EX8
      */
     public BigDecimal calcularReembolso(Consulta consulta) {
         Paciente pacienteDummy = new Paciente("Dummy", "000.000.000-00");
+
+        // EX8 - Verificar autorização antes do cálculo
+        if (autorizadorReembolso != null) {
+            if (!autorizadorReembolso.isAutorizado(consulta, pacienteDummy)) {
+                String motivo = autorizadorReembolso.getMotivoNegacao();
+                throw new SecurityException("Consulta não autorizada para reembolso" +
+                        (motivo != null ? ": " + motivo : ""));
+            }
+        }
 
         // EX7 - Registra auditoria
         if (auditoria != null) {
             auditoria.registrarConsulta(consulta);
         }
 
-        return calculadoraReembolso.calcular(consulta, pacienteDummy);
+        // Calcular reembolso
+        BigDecimal valorReembolso = calculadoraReembolso.calcular(consulta, pacienteDummy);
+
+        // Salvar no fake histórico
+        if (historicoConsultas instanceof HistoricoConsultasFake) {
+            ((HistoricoConsultasFake) historicoConsultas).salvarComReembolso(consulta, pacienteDummy, valorReembolso);
+        } else {
+            historicoConsultas.salvar(consulta, pacienteDummy);
+        }
+
+        return valorReembolso;
     }
 
     /**
@@ -49,9 +73,19 @@ public class ReembolsoService {
      * @param planoSaude Plano que define percentual de cobertura
      * @return Valor do reembolso calculado
      * @throws IllegalArgumentException para dados inválidos
+     * @throws SecurityException para consultas não autorizadas - EX8
      */
     public BigDecimal calcularReembolsoComPlano(Consulta consulta, PlanoSaude planoSaude) {
         Paciente pacienteDummy = new Paciente("Dummy", "000.000.000-00");
+
+        // EX8 - Verificar autorização antes do cálculo
+        if (autorizadorReembolso != null) {
+            if (!autorizadorReembolso.isAutorizado(consulta, pacienteDummy)) {
+                String motivo = autorizadorReembolso.getMotivoNegacao();
+                throw new SecurityException("Consulta não autorizada para reembolso" +
+                        (motivo != null ? ": " + motivo : ""));
+            }
+        }
 
         // EX7 - Registra auditoria
         if (auditoria != null) {

@@ -45,7 +45,7 @@ public class ReembolsoController {
             );
 
             return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | SecurityException e) {
             return ResponseEntity.badRequest().body(Map.of(
                     "erro", e.getMessage(),
                     "status", "erro"
@@ -78,7 +78,7 @@ public class ReembolsoController {
             );
 
             return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | SecurityException e) {
             return ResponseEntity.badRequest().body(Map.of(
                     "erro", e.getMessage(),
                     "status", "erro"
