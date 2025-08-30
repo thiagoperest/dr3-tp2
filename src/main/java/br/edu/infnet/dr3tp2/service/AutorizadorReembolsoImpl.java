@@ -23,7 +23,7 @@ public class AutorizadorReembolsoImpl implements AutorizadorReembolso {
             return false;
         }
 
-        // Bloqueia acima de R$ 2.000,00
+        // Bloqueia acima de R$ 2.000,00 para o valor da consulta
         if (consulta.getValor().compareTo(LIMITE_VALOR) > 0) {
             ultimoMotivoNegacao = "Valor da consulta excede o limite de R$ 2.000,00 para reembolso!";
             return false;

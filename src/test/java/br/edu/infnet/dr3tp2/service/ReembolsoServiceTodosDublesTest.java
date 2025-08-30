@@ -52,8 +52,8 @@ class ReembolsoServiceTodosDublesTest {
         MockitoAnnotations.openMocks(this);
 
         // EX6 - Stubs de planos
-        planoBasico = new PlanoSaudeStubBasico();    // 50%
-        planoPremium = new PlanoSaudeStubPremium();  // 80%
+        planoBasico = new PlanoSaudeStubBasico();    // 50% básico
+        planoPremium = new PlanoSaudeStubPremium();  // 80% premium
 
         // EX7 - Spy de auditoria
         auditoriaSpy = new AuditoriaSpy();
@@ -78,7 +78,7 @@ class ReembolsoServiceTodosDublesTest {
         when(autorizadorReembolso.isAutorizado(any(), any())).thenReturn(true);
 
         // Calculadora retorna valor que será limitado pelo teto
-        when(calculadoraReembolso.calcularComPlano(any(), any(), any()))
+        when(calculadoraReembolso.calcularComPlano(any(), any()))
                 .thenReturn(reembolsoEsperado); // Já aplicando o teto
 
         // Act
@@ -97,7 +97,7 @@ class ReembolsoServiceTodosDublesTest {
         assertTrue(auditoriaSpy.foiChamadoCom(consulta));
 
         // Verificar calculadora foi chamada
-        verify(calculadoraReembolso).calcularComPlano(any(), any(), eq(planoBasico));
+        verify(calculadoraReembolso).calcularComPlano(any(), eq(planoBasico));
 
         // EX6 - Verificar propriedades do stub
         assertEquals("Plano Básico", planoBasico.getNome());
@@ -136,7 +136,7 @@ class ReembolsoServiceTodosDublesTest {
         // Nota: Auditoria pode não ser chamada se a validação falhar antes
 
         // Calculadora NÃO deve ser chamada
-        verify(calculadoraReembolso, never()).calcularComPlano(any(), any(), any());
+        verify(calculadoraReembolso, never()).calcularComPlano(any(), any());
 
         // EX6 - Verificar propriedades do stub premium
         assertEquals("Plano Premium", planoPremium.getNome());
@@ -189,9 +189,9 @@ class ReembolsoServiceTodosDublesTest {
         when(autorizadorReembolso.isAutorizado(any(), any())).thenReturn(true);
 
         // Calculadora retorna valores limitados pelo teto
-        when(calculadoraReembolso.calcularComPlano(any(), any(), eq(planoBasico)))
+        when(calculadoraReembolso.calcularComPlano(any(), eq(planoBasico)))
                 .thenReturn(new BigDecimal("150.00")); // 50% de R$ 400 = R$ 200, limitado a R$ 150
-        when(calculadoraReembolso.calcularComPlano(any(), any(), eq(planoPremium)))
+        when(calculadoraReembolso.calcularComPlano(any(), eq(planoPremium)))
                 .thenReturn(new BigDecimal("150.00")); // 80% de R$ 400 = R$ 320, limitado a R$ 150
 
         // Act - Testar ambos os planos
@@ -213,8 +213,8 @@ class ReembolsoServiceTodosDublesTest {
         verify(autorizadorReembolso, times(2)).isAutorizado(any(), any());
 
         // EX6 - Verifica que ambos os stubs foram utilizados
-        verify(calculadoraReembolso).calcularComPlano(any(), any(), eq(planoBasico));
-        verify(calculadoraReembolso).calcularComPlano(any(), any(), eq(planoPremium));
+        verify(calculadoraReembolso).calcularComPlano(any(), eq(planoBasico));
+        verify(calculadoraReembolso).calcularComPlano(any(), eq(planoPremium));
     }
 
     @Test

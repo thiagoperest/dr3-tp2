@@ -98,7 +98,7 @@ class ReembolsoServiceMockTest {
 
         // Mocks configurados
         when(autorizadorReembolso.isAutorizado(any(), any())).thenReturn(true);
-        when(calculadoraReembolso.calcularComPlano(any(), any(), any())).thenReturn(reembolsoEsperado);
+        when(calculadoraReembolso.calcularComPlano(any(), any())).thenReturn(reembolsoEsperado);
 
         // Act
         BigDecimal resultado = reembolsoService.calcularReembolsoComPlano(consulta, planoBasico);
@@ -106,7 +106,7 @@ class ReembolsoServiceMockTest {
         // Assert
         assertEquals(reembolsoEsperado, resultado);
         verify(autorizadorReembolso).isAutorizado(any(), any());
-        verify(calculadoraReembolso).calcularComPlano(any(), any(), any());
+        verify(calculadoraReembolso).calcularComPlano(any(), any());
     }
 
     @Test
@@ -115,7 +115,7 @@ class ReembolsoServiceMockTest {
         // Arrange
         Consulta consulta = new Consulta(new BigDecimal("2500.00"), null);
 
-        // Mock configurado para negar
+        // Mock configurado para ser negagado a autorização
         when(autorizadorReembolso.isAutorizado(any(), any())).thenReturn(false);
         when(autorizadorReembolso.getMotivoNegacao()).thenReturn("Valor excede limite de R$ 2.000,00");
 
@@ -127,7 +127,7 @@ class ReembolsoServiceMockTest {
 
         // Verificar interações
         verify(autorizadorReembolso).isAutorizado(any(), any());
-        verify(calculadoraReembolso, never()).calcularComPlano(any(), any(), any());
+        verify(calculadoraReembolso, never()).calcularComPlano(any(), any());
     }
 
     @Test

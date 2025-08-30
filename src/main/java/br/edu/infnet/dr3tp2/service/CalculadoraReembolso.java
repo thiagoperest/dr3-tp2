@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /**
- * Classe dedicada para cálculo de reembolso
+ * Classe para cálculo de reembolso
  */
 @Component
 public class CalculadoraReembolso {
@@ -20,7 +20,7 @@ public class CalculadoraReembolso {
      * Calcula o valor de reembolso de uma consulta médica
      *
      * @param consulta Consulta com valor e percentual de cobertura
-     * @param paciente Paciente (dummy - não utilizado no cálculo neste momento - EX4)
+     * @param paciente Paciente (dummy object - EX4)
      * @return Valor do reembolso calculado
      * @throws IllegalArgumentException para dados inválidos
      */
@@ -55,12 +55,11 @@ public class CalculadoraReembolso {
      * Calcula o valor de reembolso usando plano de saúde
      *
      * @param consulta Consulta com valor
-     * @param paciente Paciente (dummy)
      * @param planoSaude Plano que define percentual de cobertura
      * @return Valor do reembolso calculado
      * @throws IllegalArgumentException para dados inválidos
      */
-    public BigDecimal calcularComPlano(Consulta consulta, Paciente paciente, PlanoSaude planoSaude) {
+    public BigDecimal calcularComPlano(Consulta consulta, PlanoSaude planoSaude) {
         // Validações obrigatórias
         if (consulta == null) {
             throw new IllegalArgumentException("Consulta não pode ser nula");

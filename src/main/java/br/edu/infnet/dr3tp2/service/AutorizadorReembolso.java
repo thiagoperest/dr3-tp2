@@ -18,9 +18,9 @@ public interface AutorizadorReembolso {
     boolean isAutorizado(Consulta consulta, Paciente paciente);
 
     /**
-     * Obtém motivo da negação (opcional)
+     * Obtém motivo da negação (sendo opcional)
      *
-     * @return Motivo da última negação ou null se autorizada
+     * @return Motivo da última negação ou null se autorizada com sucesso
      */
     String getMotivoNegacao();
 }

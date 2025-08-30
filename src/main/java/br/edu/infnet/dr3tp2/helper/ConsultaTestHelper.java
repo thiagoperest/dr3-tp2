@@ -9,21 +9,21 @@ import java.math.BigDecimal;
  */
 public class ConsultaTestHelper {
 
-    // Valores padrão usados nos testes
+    // Valores padrão usados nos testes unitários
     private static final BigDecimal VALOR_PADRAO = new BigDecimal("200.00");
     private static final BigDecimal PERCENTUAL_PADRAO = new BigDecimal("0.70");
 
     /**
-     * Cria consulta com valores padrão: R$ 200,00 com 70% de cobertura
+     * Cria consulta com valores padrão: Exemplo -> R$ 200,00 com 70% de cobertura
      *
-     * @return Consulta com dados padrão
+     * @return Consulta com dados padrão da consulta
      */
     public static Consulta criarConsultaPadrao() {
         return new Consulta(VALOR_PADRAO, PERCENTUAL_PADRAO);
     }
 
     /**
-     * Cria consulta com valor personalizado e percentual padrão (70%)
+     * Cria consulta com valor personalizado e percentual padrão de 70%
      *
      * @param valor Valor da consulta
      * @return Consulta com valor personalizado
@@ -33,7 +33,7 @@ public class ConsultaTestHelper {
     }
 
     /**
-     * Cria consulta com valor e percentual personalizados
+     * Cria consulta com valor e percentual personalizados (informando na request)
      *
      * @param valor Valor da consulta
      * @param percentual Percentual de cobertura
@@ -44,7 +44,7 @@ public class ConsultaTestHelper {
     }
 
     /**
-     * Cria consulta para plano (sem percentual definido)
+     * Cria consulta para plano
      *
      * @param valor Valor da consulta
      * @return Consulta para uso com planos
@@ -54,9 +54,9 @@ public class ConsultaTestHelper {
     }
 
     /**
-     * Cria consulta autorizada (abaixo de R$ 2.000)
+     * Cria consulta autorizada (deve ser com valor abaixo de R$ 2.000 para ser autorizada)
      *
-     * @return Consulta que passa na autorização
+     * @return Consulta
      */
     public static Consulta criarConsultaAutorizada() {
         return new Consulta(new BigDecimal("1500.00"), PERCENTUAL_PADRAO);
@@ -65,7 +65,7 @@ public class ConsultaTestHelper {
     /**
      * Cria consulta não autorizada (acima de R$ 2.000)
      *
-     * @return Consulta que será bloqueada pela autorização
+     * @return Consulta que será bloqueada pela autorização com valores acima de R$ 2.000
      */
     public static Consulta criarConsultaNaoAutorizada() {
         return new Consulta(new BigDecimal("2500.00"), PERCENTUAL_PADRAO);

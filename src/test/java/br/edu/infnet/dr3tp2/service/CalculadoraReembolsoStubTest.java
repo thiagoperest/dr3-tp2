@@ -49,7 +49,7 @@ class CalculadoraReembolsoStubTest {
         BigDecimal reembolsoEsperado = new BigDecimal("100.00");
 
         // Act - 50%
-        BigDecimal reembolsoCalculado = calculadora.calcularComPlano(consulta, pacienteDummy, planoBasico);
+        BigDecimal reembolsoCalculado = calculadora.calcularComPlano(consulta, planoBasico);
 
         // Assert - EX10 - Usando comparação com margem de erro
         assertEqualsComMargem(reembolsoEsperado, reembolsoCalculado,
@@ -62,14 +62,14 @@ class CalculadoraReembolsoStubTest {
     void deveCalcularReembolsoComPlanoPremium() {
         // Arrange
         Consulta consulta = new Consulta(new BigDecimal("200.00"), null);
-        BigDecimal reembolsoEsperado = new BigDecimal("150.00"); // EX11 - Limitado pelo teto
+        BigDecimal reembolsoEsperado = new BigDecimal("150.00"); // EX11 - Limitado pelo valor de teto
 
-        // Act - 80% de R$ 200 = R$ 160, mas limitado a R$ 150
-        BigDecimal reembolsoCalculado = calculadora.calcularComPlano(consulta, pacienteDummy, planoPremium);
+        // Act - 80% de R$ 200 = R$ 160, mas limitado a R$ 150 devido ao valor de teto estabelecido
+        BigDecimal reembolsoCalculado = calculadora.calcularComPlano(consulta, planoPremium);
 
         // Assert - EX10 - Usando comparação com margem de erro
         assertEqualsComMargem(reembolsoEsperado, reembolsoCalculado,
-                "Reembolso deve ser limitado ao teto de R$ 150,00");
+                "Reembolso Deve ser limitado ao valor do teto de R$ 150,00");
         assertEquals("Plano Premium", planoPremium.getNome());
     }
 
@@ -81,12 +81,12 @@ class CalculadoraReembolsoStubTest {
         Consulta consulta2 = new Consulta(new BigDecimal("300.00"), null);
 
         // Act
-        BigDecimal reembolso1 = calculadora.calcularComPlano(consulta1, pacienteDummy, planoBasico);
-        BigDecimal reembolso2 = calculadora.calcularComPlano(consulta2, pacienteDummy, planoBasico);
+        BigDecimal reembolso1 = calculadora.calcularComPlano(consulta1, planoBasico);
+        BigDecimal reembolso2 = calculadora.calcularComPlano(consulta2, planoBasico);
 
         // Assert - EX10 - Usando comparação com margem de erro
         assertEqualsComMargem(new BigDecimal("50.00"), reembolso1, "Reembolso1 deve ser R$ 50,00");
-        assertEqualsComMargem(new BigDecimal("150.00"), reembolso2, "Reembolso2 deve ser R$ 150,00"); // EX11 - Limitado ao teto
+        assertEqualsComMargem(new BigDecimal("150.00"), reembolso2, "Reembolso2 deve ser R$ 150,00"); // EX11 - Limitado pelo valor de teto
     }
 
     @Test
@@ -96,8 +96,8 @@ class CalculadoraReembolsoStubTest {
         Consulta consulta = new Consulta(new BigDecimal("1000.00"), null);
 
         // Act
-        BigDecimal reembolsoBasico = calculadora.calcularComPlano(consulta, pacienteDummy, planoBasico);
-        BigDecimal reembolsoPremium = calculadora.calcularComPlano(consulta, pacienteDummy, planoPremium);
+        BigDecimal reembolsoBasico = calculadora.calcularComPlano(consulta, planoBasico);
+        BigDecimal reembolsoPremium = calculadora.calcularComPlano(consulta, planoPremium);
 
         // Assert - EX11 - Ambos limitados ao teto de R$ 150
         assertEqualsComMargem(new BigDecimal("150.00"), reembolsoBasico, "Reembolso básico limitado ao teto");
@@ -107,7 +107,7 @@ class CalculadoraReembolsoStubTest {
         assertEquals(0, reembolsoPremium.compareTo(reembolsoBasico));
     }
 
-    // EX11 - NOVOS TESTES PARA VALIDAR TETO COM PLANOS
+    // EX11 - Testes para validar valor de teto com os planos básico e premium
 
     @Test
     @DisplayName("Deve limitar plano premium ao teto - R$ 300 com 80%")
@@ -117,11 +117,11 @@ class CalculadoraReembolsoStubTest {
         BigDecimal tetoEsperado = new BigDecimal("150.00");
 
         // Act
-        BigDecimal reembolsoCalculado = calculadora.calcularComPlano(consulta, pacienteDummy, planoPremium);
+        BigDecimal reembolsoCalculado = calculadora.calcularComPlano(consulta, planoPremium);
 
-        // Assert - EX11 - Deve ser limitado ao teto
+        // Assert - EX11 - Deve ser limitado ao valor do teto
         assertEqualsComMargem(tetoEsperado, reembolsoCalculado,
-                "Reembolso deve ser limitado ao teto de R$ 150,00");
+                "Reembolso Deve ser limitado ao valor do teto de R$ 150,00");
     }
 
     @Test
@@ -132,11 +132,11 @@ class CalculadoraReembolsoStubTest {
         BigDecimal tetoEsperado = new BigDecimal("150.00");
 
         // Act
-        BigDecimal reembolsoCalculado = calculadora.calcularComPlano(consulta, pacienteDummy, planoBasico);
+        BigDecimal reembolsoCalculado = calculadora.calcularComPlano(consulta, planoBasico);
 
-        // Assert - EX11 - Deve ser limitado ao teto
+        // Assert - EX11 - Deve ser limitado ao valor do teto
         assertEqualsComMargem(tetoEsperado, reembolsoCalculado,
-                "Reembolso deve ser limitado ao teto de R$ 150,00");
+                "Reembolso Deve ser limitado ao valor do teto de R$ 150,00");
     }
 
     @Test
@@ -147,7 +147,7 @@ class CalculadoraReembolsoStubTest {
         BigDecimal reembolsoEsperado = new BigDecimal("100.00");
 
         // Act
-        BigDecimal reembolsoCalculado = calculadora.calcularComPlano(consulta, pacienteDummy, planoBasico);
+        BigDecimal reembolsoCalculado = calculadora.calcularComPlano(consulta, planoBasico);
 
         // Assert - EX11
         assertEqualsComMargem(reembolsoEsperado, reembolsoCalculado,
@@ -162,7 +162,7 @@ class CalculadoraReembolsoStubTest {
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class,
-                () -> calculadora.calcularComPlano(consulta, pacienteDummy, null),
+                () -> calculadora.calcularComPlano(consulta, null),
                 "Deve lançar exceção para plano nulo");
     }
 
@@ -171,7 +171,7 @@ class CalculadoraReembolsoStubTest {
     void deveLancarExcecaoParaConsultaNulaComPlano() {
         // Act & Assert
         assertThrows(IllegalArgumentException.class,
-                () -> calculadora.calcularComPlano(null, pacienteDummy, planoBasico),
+                () -> calculadora.calcularComPlano(null, planoBasico),
                 "Deve lançar exceção para consulta nula");
     }
 
@@ -183,7 +183,7 @@ class CalculadoraReembolsoStubTest {
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class,
-                () -> calculadora.calcularComPlano(consulta, pacienteDummy, planoBasico),
+                () -> calculadora.calcularComPlano(consulta, planoBasico),
                 "Deve lançar exceção para valor negativo");
     }
 }

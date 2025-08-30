@@ -92,7 +92,7 @@ public class ReembolsoService {
             auditoria.registrarConsulta(consulta);
         }
 
-        return calculadoraReembolso.calcularComPlano(consulta, pacienteDummy, planoSaude);
+        return calculadoraReembolso.calcularComPlano(consulta, planoSaude);
     }
 
     /**
@@ -105,7 +105,7 @@ public class ReembolsoService {
     }
 
     /**
-     * Busca histórico de um paciente específico
+     * Busca histórico de um paciente específico pelo número do CPF
      *
      * @param cpf CPF do paciente
      * @return Lista de histórico do paciente

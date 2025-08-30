@@ -17,7 +17,7 @@ public class AuditoriaSpy implements Auditoria {
 
     @Override
     public void registrarConsulta(Consulta consulta) {
-        // Spy observa e registra a chamada
+        // Spy observa e registra a chamada da request
         this.foiChamado = true;
         this.quantidadeChamadas++;
         this.ultimaConsultaRegistrada = consulta;
@@ -30,7 +30,7 @@ public class AuditoriaSpy implements Auditoria {
                 (consulta != null ? consulta.getValor() : "null"));
     }
 
-    // Métodos de verificação para ser usados nos testes
+    // Métodos de verificação para ser usados nos testes unitários
     public boolean foiChamado() {
         return foiChamado;
     }
@@ -51,7 +51,7 @@ public class AuditoriaSpy implements Auditoria {
         return consultasRegistradas.contains(consulta);
     }
 
-    // Método para resetar o spy entre os testes
+    // Método para resetar o spy entre os testes unitários
     public void reset() {
         this.foiChamado = false;
         this.quantidadeChamadas = 0;

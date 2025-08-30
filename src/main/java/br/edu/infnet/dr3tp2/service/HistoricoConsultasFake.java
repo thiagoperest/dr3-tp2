@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Implementação fake do histórico de consultas finalidade para testes - EX5
+ * Implementação fake do histórico de consultas para testes - EX5
  * Armazena dados em memória
  */
 @Component

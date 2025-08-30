@@ -12,7 +12,7 @@ import java.util.List;
 public interface HistoricoConsultas {
 
     /**
-     * Armazena uma consulta no histórico
+     * Armazena consulta no histórico
      *
      * @param consulta Consulta a ser armazenada
      * @param paciente Paciente da consulta

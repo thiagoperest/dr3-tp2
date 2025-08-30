@@ -1,7 +1,7 @@
 package br.edu.infnet.dr3tp2.model;
 
 /**
- * Representa um paciente
+ * Representa um paciente a ser reembolsado
  */
 public class Paciente {
 

@@ -102,7 +102,7 @@ class CalculadoraReembolsoTest {
         // Arrange - Percentual maior que 100%
         Consulta consulta = new Consulta(
                 new BigDecimal("200.00"),
-                new BigDecimal("1.50")  // 150% - inválido, máximo de 100%
+                new BigDecimal("1.50")  // 150% - inválido, máximo de 100% do valor de reembolso
         );
 
         // Act & Assert
@@ -210,7 +210,7 @@ class CalculadoraReembolsoTest {
         // Act
         BigDecimal reembolsoCalculado = calculadora.calcular(consulta, pacienteDummy);
 
-        // Assert - EX11 - Deve manter R$ 150
+        // Assert - EX11 - Deve manter o valor de R$ 150
         assertEqualsComMargem(reembolsoEsperado, reembolsoCalculado,
                 "Reembolso de R$ 150,00 deve manter o valor (no teto)");
     }

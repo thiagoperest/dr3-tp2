@@ -28,8 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Classe de teste de integração para ReembolsoController
  *
- * Usa @WebMvcTest para testar apenas a camada web
- * e @MockitoBean para simular dependências (dublês de teste)
+ * Usa @WebMvcTest para testar a camada web
+ * @MockitoBean para simular dependências (dublês de teste)
  */
 @WebMvcTest(ReembolsoController.class)
 class ReembolsoControllerTest {
@@ -46,15 +46,15 @@ class ReembolsoControllerTest {
     @Test
     @DisplayName("Deve calcular reembolso via API - R$ 200 com 70% = R$ 140")
     void deveCalcularReembolsoViaAPI() throws Exception {
-        // Arrange - Preparar dados e comportamento do mock
+        // Arrange - Preparar dados e comportamento do mock para o caso de teste
         Consulta consulta = new Consulta(new BigDecimal("200.00"), new BigDecimal("0.70"));
         BigDecimal reembolsoEsperado = new BigDecimal("140.00");
 
-        // Configurar comportamento do mock
+        // Configura o comportamento do mock
         when(reembolsoService.calcularReembolso(any(Consulta.class)))
                 .thenReturn(reembolsoEsperado);
 
-        // Act & Assert - Executar requisição e verificar resposta
+        // Act & Assert - Executar requisição e verificar a resposta da request
         mockMvc.perform(post("/api/reembolso/calcular")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(consulta)))
@@ -120,7 +120,7 @@ class ReembolsoControllerTest {
         // Configurar comportamento do mock
         when(reembolsoService.buscarHistorico()).thenReturn(historicoEsperado);
 
-        // Act & Assert - Executar requisição e verificar resposta
+        // Act & Assert - Executar requisição e verificar a resposta da request
         mockMvc.perform(get("/api/reembolso/historico"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -136,7 +136,7 @@ class ReembolsoControllerTest {
     @Test
     @DisplayName("Deve consultar histórico por CPF do paciente via API")
     void deveConsultarHistoricoPorPacienteViaAPI() throws Exception {
-        // Arrange - Preparar dados do histórico de um paciente específico
+        // Arrange - Preparar dados do histórico de um paciente
         ReembolsoResponse reembolso = new ReembolsoResponse(
                 new BigDecimal("200.00"),
                 new BigDecimal("0.70"),
@@ -150,11 +150,11 @@ class ReembolsoControllerTest {
                 new HistoricoResponse(reembolso, paciente)
         );
 
-        // Configurar comportamento do mock
+        // Configura o comportamento do mock
         when(reembolsoService.buscarHistoricoPorPaciente(anyString()))
                 .thenReturn(historicoEsperado);
 
-        // Act & Assert - Executar requisição e verificar resposta
+        // Act & Assert - Executar requisição e verificar a resposta da request
         mockMvc.perform(get("/api/reembolso/historico/paciente/123.456.789-00"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -349,14 +349,14 @@ class ReembolsoControllerTest {
 
         // Mock configurado para lançar SecurityException
         when(reembolsoService.calcularReembolso(any(Consulta.class)))
-                .thenThrow(new SecurityException("Consulta não autorizada para reembolso: Valor da consulta excede o limite de R$ 2.000,00 para reembolso automático"));
+                .thenThrow(new SecurityException("Consulta não autorizada para reembolso: Valor da consulta excede o limite de R$ 2.000,00 para reembolso"));
 
         // Act & Assert
         mockMvc.perform(post("/api/reembolso/calcular")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(consulta)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.erro").value("Consulta não autorizada para reembolso: Valor da consulta excede o limite de R$ 2.000,00 para reembolso automático"))
+                .andExpect(jsonPath("$.erro").value("Consulta não autorizada para reembolso: Valor da consulta excede o limite de R$ 2.000,00 para reembolso"))
                 .andExpect(jsonPath("$.status").value("erro"));
     }
 
@@ -368,7 +368,7 @@ class ReembolsoControllerTest {
 
         // Mock configurado para lançar SecurityException
         when(reembolsoService.calcularReembolsoComPlano(any(Consulta.class), any(PlanoSaude.class)))
-                .thenThrow(new SecurityException("Consulta não autorizada para reembolso: Valor da consulta excede o limite de R$ 2.000,00 para reembolso automático"));
+                .thenThrow(new SecurityException("Consulta não autorizada para reembolso: Valor da consulta excede o limite de R$ 2.000,00 para reembolso"));
 
         // Act & Assert
         mockMvc.perform(post("/api/reembolso/calcular-com-plano")
@@ -376,14 +376,14 @@ class ReembolsoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(consulta)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.erro").value("Consulta não autorizada para reembolso: Valor da consulta excede o limite de R$ 2.000,00 para reembolso automático"))
+                .andExpect(jsonPath("$.erro").value("Consulta não autorizada para reembolso: Valor da consulta excede o limite de R$ 2.000,00 para reembolso"))
                 .andExpect(jsonPath("$.status").value("erro"));
     }
 
     @Test
     @DisplayName("Deve calcular reembolso autorizado abaixo do limite - R$ 1.500")
     void deveCalcularReembolsoAutorizadoAbaixoLimite() throws Exception {
-        // Arrange - Consulta autorizada (abaixo de R$ 2.000)
+        // Arrange - Consulta autorizada (abaixo do limite de R$ 2.000)
         Consulta consulta = new Consulta(new BigDecimal("1500.00"), new BigDecimal("0.70"));
         BigDecimal reembolsoEsperado = new BigDecimal("1050.00");
 

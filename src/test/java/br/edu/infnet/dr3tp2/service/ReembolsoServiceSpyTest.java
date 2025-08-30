@@ -36,7 +36,7 @@ class ReembolsoServiceSpyTest {
         auditoriaSpy = new AuditoriaSpy();
         reembolsoService.auditoria = auditoriaSpy;
 
-        // Stub para testes com plano (50% ou 80%)
+        // Stub para testes com plano (50% básico)
         planoBasico = new PlanoSaudeStubBasico();
     }
 
@@ -65,7 +65,7 @@ class ReembolsoServiceSpyTest {
         // Arrange
         Consulta consulta = new Consulta(new BigDecimal("200.00"), null);
 
-        when(calculadoraReembolso.calcularComPlano(any(), any(), any()))
+        when(calculadoraReembolso.calcularComPlano(any(), any()))
                 .thenReturn(new BigDecimal("100.00"));
 
         // Act
